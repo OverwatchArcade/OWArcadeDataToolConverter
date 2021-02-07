@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace OWArcadeDataToolConverter
 {
@@ -11,6 +12,10 @@ namespace OWArcadeDataToolConverter
         public static void ClearImageOutputDirectory(string ImageOutputDirectory)
         {
             System.IO.DirectoryInfo di = new DirectoryInfo(ImageOutputDirectory);
+            if (!di.Exists)
+            {
+                return;
+            }
             foreach (FileInfo file in di.GetFiles())
             {
                 file.Delete();
@@ -51,11 +56,12 @@ namespace OWArcadeDataToolConverter
 
         public static string CalculateImageFilename(JObject modeObj)
         {
-            // First calculate filename (i.e Total Mayhem_D.JPG, Mirrored Deathmatch _tx0C0000000001FEE9__A8.JPG)
-            string GUID = ((string)modeObj["GUID"]).TrimStart(new char[] { '0' }); // Remove leading zeros
-            GUID = GUID.Substring(0, GUID.LastIndexOf('.')); // Select everything leading till 
+            // First calculate filename (i.e 00D_Total Mayhem.JPG, Mirrored Deathmatch _tx0C0000000001FEE9__A8.JPG)
+            string pattern = @"...(?=\.)";
+            Regex rg = new Regex(pattern);
+            string GUID = rg.Matches((string)modeObj["GUID"])[0].Value;
 
-            return ((string)modeObj["Name"]).Replace(":", "_").Replace("<", "_").Replace(">", "_").TrimEnd() + "_" + GUID + ".JPG";
+            return ((string)GUID + "_" + modeObj["Name"]).Replace(":", "_").Replace("<", "_").Replace(">", "_").TrimEnd() + ".JPG";
         }
 
         public static string[] RemoveShitFromName(JObject modeObj)

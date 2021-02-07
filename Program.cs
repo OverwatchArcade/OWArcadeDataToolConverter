@@ -2,7 +2,6 @@
 using CsvHelper.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using OWArcadeBackend.Models;
 using OWArcadeBackend.Models.Overwatch;
 using System;
 using System.Collections.Generic;
@@ -10,17 +9,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace OWArcadeDataToolConverter
 {
     class Program : Util
     {
-        public static string rootDirectory = "C:\\Users\\quint\\source\\repos\\OWArcadeDataToolConverter";
-        public static string inDirectory = rootDirectory+"\\in\\";
-        public static string OutDirectory = rootDirectory+"\\out\\";
-        public static string imageInDirectory = inDirectory+"\\images\\";
-        public static string imageOutDirectory = OutDirectory+"\\images\\";
+        public static string rootDirectory = "C:\\Data\\Projects\\OverwatchArcade\\OWArcadeDataToolConverter";
+        public static string inDirectory = rootDirectory + "\\in\\";
+        public static string OutDirectory = rootDirectory + "\\out\\";
+        public static string imageInDirectory = inDirectory + "\\images\\";
+        public static string imageOutDirectory = OutDirectory + "\\images\\";
         static void Main(string[] args)
         {
             ClearImageOutputDirectory(imageOutDirectory);
@@ -30,7 +28,7 @@ namespace OWArcadeDataToolConverter
             using (var writer = new StreamWriter(OutDirectory + "modes.csv"))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
-                csv.Configuration.RegisterClassMap<ArcadeModeMap>();
+                //csv.Configuration.Reg<ArcadeModeMap>();
                 csv.WriteRecords(modes);
             }
 
@@ -44,7 +42,7 @@ namespace OWArcadeDataToolConverter
                 JObject obj = JObject.Load(reader);
                 ArcadeMode mode = new ArcadeMode();
 
-                
+
                 mode.Name = (string)obj["Name"];
                 mode.Description = ((string)obj["Description"]);
                 mode.Game = 0;
@@ -61,6 +59,10 @@ namespace OWArcadeDataToolConverter
                 if (obj["About"].Count() > 0)
                 {
                     mode.Players = (string)obj["About"][0];
+                }
+                else
+                {
+                    mode.Players = "-";
                 }
 
                 // Rename image file to md5 file (modename + modeplayers)
